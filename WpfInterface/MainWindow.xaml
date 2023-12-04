@@ -1,0 +1,119 @@
+﻿<Window x:Class="WpfInterface.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfInterface"
+        xmlns:vms="clr-namespace:WpfInterface.ViewModels"
+        xmlns:conv="clr-namespace:WpfInterface.Converters"
+        mc:Ignorable="d"
+        Title="ComputerCourseWork" 
+        MinHeight="400" 
+        MinWidth="500"
+        Height="400"
+        Width="500"
+        MaxWidth="750"
+        MaxHeight="600">
+    <Window.Resources>
+        <vms:BinaryViewModel x:Key="BinViewModel" />
+        <conv:BoolArrayToDoubleConverter x:Key="BoolArrayToDoubleConv" />  
+        <conv:BoolArrayToStringConverter x:Key="BoolArrayToStringConv" />     
+        <conv:BoolToIntConverter x:Key="BoolToIntConv" />     
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.33*" />
+            <RowDefinition Height="0.33*" />
+            <RowDefinition Height="0.34*" />            
+        </Grid.RowDefinitions>        
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="A:" Style="{StaticResource TextBlockStyle}"/>
+                    <TextBox Style="{StaticResource TextBoxStyle}"> 
+                        <TextBox.Text>
+                            <Binding Path="A" Source="{StaticResource BinViewModel}"
+                                ValidatesOnExceptions="True"
+                                UpdateSourceTrigger="PropertyChanged"
+                                StringFormat="0000000000000000">
+                                <Binding.ValidationRules>
+                                    <DataErrorValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockStyle}" 
+                Text="{Binding StringFormat=Десятичная форма: {0:F15}, Source={StaticResource BinViewModel}, Path=BoolA, Converter={StaticResource BoolArrayToDoubleConv}}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="B:" Style="{StaticResource TextBlockStyle}"/>
+                    <TextBox Style="{StaticResource TextBoxStyle}">
+                        <TextBox.Text>
+                            <Binding Path="B" Source="{StaticResource BinViewModel}"
+                                ValidatesOnExceptions="True"
+                                UpdateSourceTrigger="PropertyChanged"
+                                StringFormat="0000000000000000">
+                                <Binding.ValidationRules>
+                                    <DataErrorValidationRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </StackPanel>
+                <TextBlock Style="{StaticResource TextBlockStyle}" 
+                Text="{Binding StringFormat=Десятичная форма: {0:F15}, Source={StaticResource BinViewModel}, Path=BoolB, Converter={StaticResource BoolArrayToDoubleConv}}"/>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10, 10, 10, 10">
+            <TextBlock
+                HorizontalAlignment="Right" 
+                Style="{StaticResource TextBlockStyle}" 
+                Text="{Binding StringFormat=OV: {0}, Source={StaticResource BinViewModel}, Path=OV, Converter={StaticResource BoolToIntConv}}"/>
+            <TextBlock
+                HorizontalAlignment="Right" 
+                Style="{StaticResource TextBlockStyle}" 
+                Text="{Binding StringFormat=Z: {0}, Source={StaticResource BinViewModel}, Path=Z, Converter={StaticResource BoolToIntConv}}"/>
+            <TextBlock
+                HorizontalAlignment="Right" 
+                Style="{StaticResource TextBlockStyle}" 
+                Text="{Binding StringFormat=C: {0}, Source={StaticResource BinViewModel}, Path=BoolC, Converter={StaticResource BoolArrayToStringConv}}"/>
+            <TextBlock Style="{StaticResource TextBlockStyle}" 
+                HorizontalAlignment="Right"
+                Text="{Binding StringFormat=Десятичная форма: {0:F15}, Source={StaticResource BinViewModel}, Path=BoolC, Converter={StaticResource BoolArrayToDoubleConv}}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+           <Button Grid.Column="0"
+                Content="Деление" 
+                Style="{StaticResource ButtonStyle}" 
+                IsEnabled="{Binding Source={StaticResource  BinViewModel}, Path=IsValid}"
+                Click="DivideButtonClick"
+                Width="140"
+                Height="40"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"/>
+            <Button Grid.Column="1"            
+                Content="Эквивалентность" 
+                Style="{StaticResource ButtonStyle}" 
+                IsEnabled="{Binding Source={StaticResource  BinViewModel}, Path=IsValid}"
+                Click="EquivalenceButtonClick"
+                Width="140"
+                Height="40"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"/>                      
+        </Grid>
+    </Grid>
+</Window>

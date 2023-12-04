@@ -8,28 +8,31 @@ public static class BitOperations
     static BitOperations() 
     {
         One[BitSize - 1] = true;
+    }        
+    public static bool[] Equivalence(bool[] a, bool[] b, out bool OV, out bool Z)
+    {
+        if (a.Length != b.Length)
+            throw new ArgumentException($"Длины массивов должны быть одинаковыми.");
+        var result = new bool[a.Length];
+        for(int i = 0; i < result.Length; ++i)
+            result[i] = a[i] == b[i];
+
+        if(IsEqual(result, Zero))
+            Z = true;
+        else
+            Z = false;
+        OV = false;
+
+        return result;
     }
-
-    /*    
-    public bool[] Op1 { get; private set; } = new bool[BitSize];
-    public bool[] Op2 { get; private set; } = new bool[BitSize];
-    public bool[] Result { get; private set; } = new bool[BitSize];
-    public bool OV { get; private set; } = false;
-    public bool Z { get; private set; } = false;
-    */
-
     public static bool[] Divide(bool[] a, bool[] b, out bool OV, out bool Z)
     {        
         if (a.Length != b.Length || a.Length != BitSize)
             throw new ArgumentException($"Длины массивов должны быть одинаковыми и равны {BitSize}.");
-        if(IsGreater(a, b) || IsEqual(a, b))
+        if(IsGreater(a, b) || IsEqual(a, b) || IsEqual(b, Zero))
             OV = true;
         else
-            OV = false;
-        if(IsEqual(a, Zero))
-            Z = true;
-        else
-            Z = false;
+            OV = false;        
         var c = new bool[a.Length];
         c[c.Length - 1] = a[0] ^ b[0];
         a[0] = false;
@@ -54,7 +57,11 @@ public static class BitOperations
             }
             a = CycleShift(a, 1);
             a[a.Length - 1] = false;
-        }        
+        }
+        if(IsEqual(c, Zero))
+            Z = true;
+        else
+            Z = false;        
         return c;
     }
     private static bool[] GetAdditionalCode(bool[] source) 
