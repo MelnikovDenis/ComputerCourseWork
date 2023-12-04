@@ -1,6 +1,6 @@
 ﻿namespace Logic;
 
-public class BitOperations
+public static class BitOperations
 {
     public const int BitSize = 16;
     public static bool[] Zero { get; } = new bool[BitSize];
@@ -9,15 +9,56 @@ public class BitOperations
     {
         One[BitSize - 1] = true;
     }
+
+    /*    
     public bool[] Op1 { get; private set; } = new bool[BitSize];
     public bool[] Op2 { get; private set; } = new bool[BitSize];
     public bool[] Result { get; private set; } = new bool[BitSize];
     public bool OV { get; private set; } = false;
     public bool Z { get; private set; } = false;
-    
-    public static bool[] GetAdditionalCode(bool[] source, out bool OV) 
+    */
+
+    public static bool[] Divide(bool[] a, bool[] b, out bool OV, out bool Z)
+    {        
+        if (a.Length != b.Length || a.Length != BitSize)
+            throw new ArgumentException($"Длины массивов должны быть одинаковыми и равны {BitSize}.");
+        if(IsGreater(a, b) || IsEqual(a, b))
+            OV = true;
+        else
+            OV = false;
+        if(IsEqual(a, Zero))
+            Z = true;
+        else
+            Z = false;
+        var c = new bool[a.Length];
+        c[c.Length - 1] = a[0] ^ b[0];
+        a[0] = false;
+        b[0] = false;
+        a = CycleShift(a, 1);
+        a[a.Length - 1] = false;
+        for(int i = 0; i < c.Length - 1; ++i)
+        {
+            b[0] = true;                  
+            a = Add(a, GetAdditionalCode(b));
+            if(!a[0])
+            {
+                c = CycleShift(c, 1); 
+                c[c.Length - 1] = true;                           
+            }
+            else
+            {
+                b[0] = false;
+                a = Add(a, b);
+                c = CycleShift(c, 1); 
+                c[c.Length - 1] = false;
+            }
+            a = CycleShift(a, 1);
+            a[a.Length - 1] = false;
+        }        
+        return c;
+    }
+    private static bool[] GetAdditionalCode(bool[] source) 
     {
-        OV = false;
         var result = new bool[source.Length];
         source.CopyTo(result, 0);
         if (!source[0])
@@ -26,11 +67,11 @@ public class BitOperations
         {
             for (int i = 1; i < result.Length; ++i)
                 result[i] ^= true;
-            result = Add(result, One, out OV);
+            result = Add(result, One);
         }
         return result;
     }
-    public static bool IsGreater(bool[] op1, bool[] op2) 
+    private static bool IsGreater(bool[] op1, bool[] op2) 
     {
         if (op1.Length != op2.Length)
             throw new ArgumentException("Длины массивов должны быть одинаковыми.");
@@ -69,7 +110,7 @@ public class BitOperations
             return (bool)result;
         }
     }
-    public static bool IsEqual(bool[] op1, bool[] op2) 
+    private static bool IsEqual(bool[] op1, bool[] op2) 
     {
         if (op1.Length != op2.Length)
             return false;
@@ -83,8 +124,8 @@ public class BitOperations
             }
             return result;
         }            
-    }
-    public static bool[] Add(bool[] op1, bool[] op2, out bool OV)
+    }    
+    private static bool[] Add(bool[] op1, bool[] op2)
     {
         if (op1.Length != op2.Length)
             throw new ArgumentException("Длины массивов должны быть одинаковыми.");
@@ -112,10 +153,35 @@ public class BitOperations
             if (sum % 2 == 1)
                 result[i] = true;
         }
-        if (next == 1)
-            OV = true;
-        else
-            OV = false;
         return result;
+    }
+    /// <summary>
+    /// Циклический сдвиг битов влево
+    /// </summary>
+    /// <param name="source">Исходный массив бит</param>
+    /// <param name="shift">Длина битового сдвига (отрицатеьное значение - сдвиг вправо, 0 - отстутствие сдвига)/param>
+    private static bool[] CycleShift(bool[] source, int shift)
+    {
+        var res = new bool[source.Length];
+        if(Math.Abs(shift) > source.Length)
+            shift %= source.Length;
+        if(shift == 0)
+            source.CopyTo(res, 0);                 
+        else if(shift > 0)
+        {
+            for(int i = 0; i < shift; ++i) 
+                res[source.Length - shift + i] = source[i];
+            for(int i = 0; i < source.Length - shift; ++i)
+                res[i] = source[shift + i];
+        }
+        else
+        {
+            shift = Math.Abs(shift);
+            for(int i = 0; i < shift; ++i)
+                res[i] = source[source.Length - shift + i];
+            for(int i = 0; i < source.Length - shift; ++i)
+                res[shift + i] = source[i];
+        }
+        return res;                              
     }
 }
