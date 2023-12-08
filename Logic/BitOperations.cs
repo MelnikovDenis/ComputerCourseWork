@@ -14,15 +14,15 @@ public static class BitOperations
         if (a.Length != b.Length)
             throw new ArgumentException($"Длины массивов должны быть одинаковыми.");
         var result = new bool[a.Length];
-        for(int i = 0; i < result.Length; ++i)
+		var i = 16;
+		do
 		{
 			result[0] = a[0] == b[0];
 			result = CycleShift(result, -1);
 			a = CycleShift(a, -1);
 			b = CycleShift(b, -1);
-		}		
-		//for(int i = 0; i < result.Length; ++i)
-            //result[i] = a[i] == b[i];
+			--i;
+		}while(i > 0);
         if(IsEqual(result, Zero))
             Z = true;
         else
@@ -50,9 +50,10 @@ public static class BitOperations
             OV = false;    
         a = CycleShift(a, 1); //y9 сдвиг влево с 0 
         a[a.Length - 1] = false;
-        for(int i = 0; i < c.Length - 1; ++i)
-        {
-            b[0] = true; //y10 смена знака на отрицательный
+		var i = 15;
+		do
+		{
+			b[0] = true; //y10 смена знака на отрицательный
             a = Add(a, GetAdditionalCode(b)); 
             if(!a[0])
             {
@@ -68,7 +69,8 @@ public static class BitOperations
             }
             a = CycleShift(a, 1);
             a[a.Length - 1] = false;
-        }
+			--i; 
+		}while(i > 0);
         if(IsEqual(c, Zero))
             Z = true;
         else
