@@ -15,8 +15,14 @@ public static class BitOperations
             throw new ArgumentException($"Длины массивов должны быть одинаковыми.");
         var result = new bool[a.Length];
         for(int i = 0; i < result.Length; ++i)
-            result[i] = a[i] == b[i];
-
+		{
+			result[0] = a[0] == b[0];
+			result = CycleShift(result, -1);
+			a = CycleShift(a, -1);
+			b = CycleShift(b, -1);
+		}		
+		//for(int i = 0; i < result.Length; ++i)
+            //result[i] = a[i] == b[i];
         if(IsEqual(result, Zero))
             Z = true;
         else
@@ -27,22 +33,27 @@ public static class BitOperations
     }
     public static bool[] Divide(bool[] a, bool[] b, out bool OV, out bool Z)
     {        
+		//y1 a = value
+		//y2 b = value
+		//y3 ov = false
+		//y4 z = false
         if (a.Length != b.Length || a.Length != BitSize)
             throw new ArgumentException($"Длины массивов должны быть одинаковыми и равны {BitSize}.");
-        if(IsGreater(a, b) || IsEqual(a, b) || IsEqual(b, Zero))
+            
+        var c = new bool[a.Length]; //y5c = 0
+        c[c.Length - 1] = a[0] ^ b[0]; //y6 запись знака в последний бит C
+        a[0] = false; //y7модуль a
+        b[0] = false; //y8модуль b
+		if(IsGreater(a, b) || IsEqual(a, b) || IsEqual(b, Zero))
             OV = true;
         else
-            OV = false;        
-        var c = new bool[a.Length];
-        c[c.Length - 1] = a[0] ^ b[0];
-        a[0] = false;
-        b[0] = false;
-        a = CycleShift(a, 1);
+            OV = false;    
+        a = CycleShift(a, 1); //y9 сдвиг влево с 0 
         a[a.Length - 1] = false;
         for(int i = 0; i < c.Length - 1; ++i)
         {
-            b[0] = true;                  
-            a = Add(a, GetAdditionalCode(b));
+            b[0] = true; //y10 смена знака на отрицательный
+            a = Add(a, GetAdditionalCode(b)); 
             if(!a[0])
             {
                 c = CycleShift(c, 1); 
